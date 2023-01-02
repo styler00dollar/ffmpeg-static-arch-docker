@@ -1,7 +1,7 @@
 # ffmpeg-static-arch-docker
 
 I created this docker since it seems like there is not a single good static linux ffmpeg binary builder. Either outdated, not static, broken or has missing functionality. For example, aur builds ffmpeg-full not static, `av1_nvenc` was pretty much always missing because people dont use nv-codec-headers v12 or have very outdated dependencies like [markus-perl/ffmpeg-build-script](https://github.com/markus-perl/ffmpeg-build-script/commit/08666c2ab8e36ccf59494d8b659822a81804c176) had 11 month old SVT-AV1. Official `ffmpeg-build-script`-docker also [does not work with x265](https://github.com/markus-perl/ffmpeg-build-script/issues/157). There are multiple Github issues related to `pkg-config`, so I am not sure which issue I had, and I couldn't get it fixed. I also tried looking for alternatives, but ended up working on an own builder.
-This docker compiles most things from master directly without relying on updating release versions and uses arch since I couldnt get nasm compiled on ubuntu. This docker is only intended to be used to compile the ffmpeg binary. Copy the binary onto another linux system. Maybe I will add more to this docker at some point.
+This docker compiles most things from master directly without relying on updating release versions and uses arch since I couldnt get `nasm` compiled on ubuntu. `nasm` from apt will result in `ERROR: Problem encountered: nasm 2.14 or later is required for AVX-512 asm`. This docker is only intended to be used to compile the ffmpeg binary. Copy the binary onto another linux system. Maybe I will add more to this docker at some point.
 
 Sources I used during development:
 - [mwader/static-ffmpeg](https://hub.docker.com/r/mwader/static-ffmpeg/dockerfile)
