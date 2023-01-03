@@ -1,6 +1,6 @@
 FROM archlinux
 RUN --mount=type=cache,sharing=locked,target=/var/cache/pacman \
-    pacman -Syu --noconfirm --needed base base-devel cuda git
+    pacman -Syu --noconfirm --needed base base-devel cuda git 
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 ARG user=makepkg
@@ -14,8 +14,17 @@ RUN git clone https://aur.archlinux.org/yay.git \
   && cd \
   && rm -rf .cache yay
 
-RUN yay -S tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson rust python-pip --noconfirm
+RUN yay -S tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson rust python38 pod2man --noconfirm
 USER root
+
+# https://github.com/NSLS-II/debian-with-miniconda/blob/master/Dockerfile
+ENV PATH /opt/conda/bin:$PATH
+RUN cd && \
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh --no-verbose && \
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
+    rm Miniconda*.sh
+RUN conda install python=3.8 -y
+
 ARG MP3LAME_VERSION=3.100
 ARG MP3LAME_URL="https://sourceforge.net/projects/lame/files/lame/$MP3LAME_VERSION/lame-$MP3LAME_VERSION.tar.gz/download"
 ARG MP3LAME_SHA256=ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e
@@ -47,15 +56,6 @@ ENV LD_LIBRARY_PATH "/opt/cuda/lib64"
 ARG CFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
 ARG CXXFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
 ARG LDFLAGS="-Wl,-z,relro,-z,now"
-
-RUN \
-  OPENSSL_VERSION=$(pkg-config --modversion openssl) \
-  LIBXML2_VERSION=$(pkg-config --modversion libxml-2.0) \
-  EXPAT_VERSION=$(pkg-config --modversion expat) \
-  FREETYPE_VERSION=$(pkg-config --modversion freetype2)  \
-  FONTCONFIG_VERSION=$(pkg-config --modversion fontconfig)  \
-  FRIBIDI_VERSION=$(pkg-config --modversion fribidi)  \
-  SOXR_VERSION=$(pkg-config --modversion soxr)
 
 RUN \
   wget -O lame.tar.gz "$MP3LAME_URL" && \
@@ -202,15 +202,20 @@ RUN \
   cd openh264 && meson build --buildtype release -Ddefault_library=static && ninja -C build install
 
 RUN \
-  git clone https://github.com/FFmpeg/nv-codec-headers && cd nv-codec-headers && make && make install
+  git clone https://github.com/FFmpeg/nv-codec-headers && cd nv-codec-headers && make -j$(nproc) && make install
 
+# https://github.com/shadowsocks/shadowsocks-libev/issues/623
+RUN mkdir -p "/home/makepkg/ssl"
+RUN git clone git://git.openssl.org/openssl.git && cd openssl && LIBS="-ldl -lz" LDFLAGS="-Wl,-static -static -static-libgcc -s" ./config no-shared -static --prefix="/home/makepkg/ssl" --openssldir="/home/makepkg/ssl" && sed -i 's/^LDFLAGS = /LDFLAGS = -all-static -s/g' Makefile &&  make -j$(nproc) && make install_sw && make install
+
+# https://stackoverflow.com/questions/18185618/how-to-use-static-linking-with-openssl-in-c-c
 RUN \
   git clone https://github.com/FFmpeg/FFmpeg && cd FFmpeg && \
-  PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/ ./configure \
+  PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/:/home/makepkg/ssl/lib64/pkgconfig/ ./configure \
   --pkg-config-flags=--static \
-  --extra-cflags="-fopenmp" \
-  --extra-ldflags="-fopenmp" \
-  --extra-libs="-lstdc++" \
+  --extra-cflags="-fopenmp -lcrypto -lz -ldl -static-libgcc" \
+  --extra-ldflags="-fopenmp -lcrypto -lz -ldl -static-libgcc" \
+  --extra-libs="-lstdc++ -lcrypto -lz -ldl -static-libgcc" \
   --toolchain=hardened \
   --disable-debug \
   --disable-shared \
