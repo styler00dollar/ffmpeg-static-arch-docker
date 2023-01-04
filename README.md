@@ -7,7 +7,8 @@ Sidenotes:
 - This ffmpeg build is not 100% static because of `vapoursynth` and needs python with the right version on the host system. The normal arch docker currently compiles for Python 3.10 and it will result in `ffmpeg: error while loading shared libraries: libpython3.10.so.1.0: cannot open shared object file: No such file or directory` if you don't have the right Python. You can compile the correct python from source and use that instead, which is what I do and compile for Python 3.8.
 - Arch is currently on `ldd (GNU libc) 2.36`, which can cause problems. You may encounter `version GLIBC_2.3X not found` on older linux systems. You can workaround that on Ubuntu by manually installing following packages:
 ```
-wget http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6-dev_2.36-0ubuntu4_amd64.deb \
+wget http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6_2.36-0ubuntu4_amd64.deb \
+    http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6-dev_2.36-0ubuntu4_amd64.deb \
     http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6_2.36-0ubuntu4_i386.deb \
     http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc-bin_2.36-0ubuntu4_amd64.deb \
     http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc-dev-bin_2.36-0ubuntu4_amd64.deb \
@@ -15,8 +16,9 @@ wget http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6-dev_2.36-0ubuntu4_
     http://mirrors.kernel.org/ubuntu/pool/main/libn/libnsl/libnsl-dev_1.3.0-2build2_amd64.deb \
     http://mirrors.kernel.org/ubuntu/pool/main/libt/libtirpc/libtirpc3_1.3.3+ds-1_amd64.deb \
     http://mirrors.kernel.org/ubuntu/pool/main/libt/libtirpc/libtirpc-common_1.3.3+ds-1_all.deb \
-    http://mirrors.kernel.org/ubuntu/pool/main/libt/libtirpc/libtirpc-dev_1.3.3+ds-1_amd64.deb && \
-    dpkg -i *.deb
+    http://mirrors.kernel.org/ubuntu/pool/main/libt/libtirpc/libtirpc-dev_1.3.3+ds-1_amd64.deb \
+    http://mirrors.kernel.org/ubuntu/pool/main/r/rpcsvc-proto/rpcsvc-proto_1.4.2-0ubuntu6_amd64.deb && \
+    dpkg -i *.deb && rm -rf *deb
 ```
 
 Sources I used during development:
