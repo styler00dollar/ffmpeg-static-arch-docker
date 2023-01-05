@@ -14,13 +14,18 @@ RUN git clone https://aur.archlinux.org/yay.git \
   && cd \
   && rm -rf .cache yay
 
-RUN yay -S tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson rust pod2man --noconfirm
+RUN yay -S tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson rust pod2man python38 nvidia-utils base-devel --noconfirm --ask 4
 USER root
 
 RUN mkdir -p "/home/makepkg/python38"
 RUN wget https://github.com/python/cpython/archive/refs/tags/v3.8.16.tar.gz && tar xf v3.8.16.tar.gz && cd cpython-3.8.16 && \
   mkdir debug && cd debug && ../configure --enable-optimizations --disable-shared --prefix="/home/makepkg/python38" && make -j$(nproc) && make install && \
   /home/makepkg/python38/bin/python3.8 -m ensurepip --upgrade
+RUN cp /home/makepkg/python38/bin/python3.8 /usr/bin/python
+ENV PYTHONPATH /home/makepkg/python38/bin/
+ENV PATH "/home/makepkg/python38/bin/:$PATH"
+
+RUN pip3 install Cython meson
 
 ARG MP3LAME_VERSION=3.100
 ARG MP3LAME_URL="https://sourceforge.net/projects/lame/files/lame/$MP3LAME_VERSION/lame-$MP3LAME_VERSION.tar.gz/download"
@@ -135,9 +140,8 @@ RUN \
   wget https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.4.tar.gz && tar -zxvf release-3.0.4.tar.gz && cd zimg-release-3.0.4 && \
   ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(nproc) install
 
-ENV PYTHONPATH /home/makepkg/python38/bin/
-ENV PATH "/home/makepkg/python38/bin/:$PATH"
-RUN pip3 install Cython && wget https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R61.tar.gz && \
+
+RUN wget https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R61.tar.gz && \
     tar -zxvf R61.tar.gz && cd vapoursynth-R61 && ./autogen.sh && PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/ ./configure --enable-static --disable-shared && make && make install && cd .. && ldconfig
 
 RUN \
@@ -257,6 +261,15 @@ RUN \
   --extra-cflags=-I/opt/cuda/include --extra-ldflags=-L/opt/cuda/lib64 \
   --enable-vapoursynth \
   --enable-libopenh264 \
+  --enable-optimizations \
+  --enable-cuda-llvm \
+  --enable-nvdec \
+  --enable-nvenc \
+  --enable-cuvid \
+  --enable-cuda \
+  --enable-pthreads \
+  --enable-hardcoded-tables \
+  --enable-runtime-cpudetect \
   && make -j$(nproc)
 
 USER root

@@ -29,9 +29,10 @@ Sources I used during development:
 
 Current build:
 ```
-ffmpeg version N-109472-gcc2b1a3251 Copyright (c) 2000-2023 the FFmpeg developers
+ffmpeg version N-109530-g4a80db5fc2 Copyright (c) 2000-2023 the FFmpeg developers
   built with gcc 12.2.0 (GCC)
-  configuration: --pkg-config-flags=--static --extra-cflags=-fopenmp --extra-ldflags=-fopenmp --extra-libs=-lstdc++ --toolchain=hardened --disable-debug --disable-shared --disable-ffplay --enable-static --enable-gpl --enable-gray --enable-nonfree --enable-openssl --enable-iconv --enable-libxml2 --enable-libmp3lame --enable-libfdk-aac --enable-libvorbis --enable-libopus --enable-libtheora --enable-libvpx --enable-libx264 --enable-libx265 --enable-libwebp --enable-libspeex --enable-libaom --enable-libvidstab --enable-libkvazaar --enable-libfreetype --enable-fontconfig --enable-libfribidi --enable-libass --enable-libsoxr --enable-libopenjpeg --enable-libdav1d --enable-librav1e --enable-libsrt --enable-libsvtav1 --enable-libdavs2 --enable-libxavs2 --enable-libvmaf --enable-cuda-nvcc --extra-cflags=-I/opt/cuda/include --extra-ldflags=-L/opt/cuda/lib64 --enable-vapoursynth --enable-libopenh264
+  configuration: --pkg-config-flags=--static --extra-cflags='-fopenmp -lcrypto -lz -ldl -static-libgcc' --extra-ldflags='-fopenmp -lcrypto -lz -ldl -static-libgcc' --extra-libs='-lstdc++ -lcrypto -lz -ldl -static-libgcc' --toolchain=hardened --disable-debug --disable-shared --disable-ffplay --enable-static --enable-gpl --enable-gray --enable-nonfree --enable-openssl --enable-iconv --enable-libxml2 --enable-libmp3lame --enable-libfdk-aac --enable-libvorbis --enable-libopus --enable-libtheora --enable-libvpx --enable-libx264 --enable-libx265 --enable-libwebp --enable-libspeex --enable-libaom --enable-libvidstab --enable-libkvazaar --enable-libfreetype --enable-fontconfig --enable-libfribidi --enable-libass --enable-libsoxr --enable-libopenjpeg --enable-libdav1d --enable-librav1e --enable-libsrt --enable-libsvtav1 --enable-libdavs2 --enable-libxavs2 --enable-libvmaf --enable-cuda-nvcc --extra-cflags=-I/opt/cuda/include --extra-ldflags=-L/opt/cuda/lib64 --enable-vapoursynth --enable-libopenh264 --enable-optimizations --enable-cuda-llvm --enable-nvdec --enable-nvenc --enable-cuvid --enable-cuda --enable-pthreads --enable-hardcoded-tables --enable-runtime-cpudetect
+
 ```
 Encoders:
 ```
