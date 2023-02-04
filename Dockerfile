@@ -14,7 +14,7 @@ RUN git clone https://aur.archlinux.org/yay.git \
   && cd \
   && rm -rf .cache yay
 
-RUN yay -S tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson rust pod2man python38 nvidia-utils base-devel --noconfirm --ask 4
+RUN yay -S rust-nightly-bin tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson pod2man python38 nvidia-utils base-devel --noconfirm --ask 4
 USER root
 
 RUN mkdir -p "/home/makepkg/python38"
@@ -166,7 +166,7 @@ RUN \
   git clone https://github.com/xiph/rav1e/ && \
   cd rav1e && \
   cargo install cargo-c && \
-  cargo cinstall --release  --library-type=staticlib --crt-static
+  cargo cinstall  --release --library-type=staticlib --crt-static
 RUN sed -i 's/-lgcc_s//' /usr/local/lib/pkgconfig/rav1e.pc
 
 RUN \
