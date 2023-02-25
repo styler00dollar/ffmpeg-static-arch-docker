@@ -268,7 +268,7 @@ RUN \
   --enable-cuvid \
   --enable-cuda \
   --enable-pthreads \
-  --enable-hardcoded-tables \
+  #--enable-hardcoded-tables \
   --enable-runtime-cpudetect \
   && make -j$(nproc)
 
