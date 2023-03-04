@@ -14,37 +14,18 @@ RUN git clone https://aur.archlinux.org/yay.git \
   && cd \
   && rm -rf .cache yay
 
-RUN yay -S rust-nightly-bin tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson pod2man python38 nvidia-utils base-devel --noconfirm --ask 4
+RUN yay -S rust-nightly-bin tcl nasm cmake jq libtool wget fribidi fontconfig libsoxr-git meson pod2man nvidia-utils base-devel --noconfirm --ask 4
 USER root
 
-RUN mkdir -p "/home/makepkg/python38"
-RUN wget https://github.com/python/cpython/archive/refs/tags/v3.8.16.tar.gz && tar xf v3.8.16.tar.gz && cd cpython-3.8.16 && \
-  mkdir debug && cd debug && ../configure --enable-optimizations --disable-shared --prefix="/home/makepkg/python38" && make -j$(nproc) && make install && \
-  /home/makepkg/python38/bin/python3.8 -m ensurepip --upgrade
-RUN cp /home/makepkg/python38/bin/python3.8 /usr/bin/python
-ENV PYTHONPATH /home/makepkg/python38/bin/
-ENV PATH "/home/makepkg/python38/bin/:$PATH"
+RUN mkdir -p "/home/makepkg/python310"
+RUN wget https://github.com/python/cpython/archive/refs/tags/v3.10.10.tar.gz && tar xf v3.10.10.tar.gz && cd cpython-3.10.10 && \
+  mkdir debug && cd debug && ../configure --enable-optimizations --disable-shared --prefix="/home/makepkg/python310" && make -j$(nproc) && make install && \
+  /home/makepkg/python310/bin/python3.10 -m ensurepip --upgrade
+RUN cp /home/makepkg/python310/bin/python3.10 /usr/bin/python
+ENV PYTHONPATH /home/makepkg/python310/bin/
+ENV PATH "/home/makepkg/python310/bin/:$PATH"
 
 RUN pip3 install Cython meson
-
-ARG MP3LAME_VERSION=3.100
-ARG MP3LAME_URL="https://sourceforge.net/projects/lame/files/lame/$MP3LAME_VERSION/lame-$MP3LAME_VERSION.tar.gz/download"
-ARG MP3LAME_SHA256=ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e
-ARG OGG_VERSION=1.3.5
-ARG OGG_URL="https://downloads.xiph.org/releases/ogg/libogg-$OGG_VERSION.tar.gz"
-ARG OGG_SHA256=0eb4b4b9420a0f51db142ba3f9c64b333f826532dc0f48c6410ae51f4799b664
-ARG VORBIS_VERSION=1.3.7
-ARG VORBIS_URL="https://downloads.xiph.org/releases/vorbis/libvorbis-$VORBIS_VERSION.tar.gz"
-ARG VORBIS_SHA256=0e982409a9c3fc82ee06e08205b1355e5c6aa4c36bca58146ef399621b0ce5ab
-ARG OPUS_VERSION=1.3.1
-ARG OPUS_URL="https://archive.mozilla.org/pub/opus/opus-$OPUS_VERSION.tar.gz"
-ARG OPUS_SHA256=65b58e1e25b2a114157014736a3d9dfeaad8d41be1c8179866f144a2fb44ff9d
-ARG THEORA_VERSION=1.1.1
-ARG THEORA_URL="https://downloads.xiph.org/releases/theora/libtheora-$THEORA_VERSION.tar.bz2"
-ARG THEORA_SHA256=b6ae1ee2fa3d42ac489287d3ec34c5885730b1296f0801ae577a35193d3affbc
-ARG XVID_VERSION=1.3.7
-ARG XVID_URL="https://downloads.xvid.com/downloads/xvidcore-$XVID_VERSION.tar.gz"
-ARG XVID_SHA256=abbdcbd39555691dd1c9b4d08f0a031376a3b211652c0d8b3b8aa9be1303ce2d
 
 ENV PATH "$PATH:/opt/cuda/bin/nvcc"
 ENV PATH "$PATH:/opt/cuda/bin"
@@ -60,38 +41,23 @@ ARG CXXFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPI
 ARG LDFLAGS="-Wl,-z,relro,-z,now"
 
 RUN \
-  wget -O lame.tar.gz "$MP3LAME_URL" && \
-  echo "$MP3LAME_SHA256  lame.tar.gz" | sha256sum --status -c - && \
-  tar xf lame.tar.gz && \
-  cd lame-* && ./configure --enable-static --enable-nasm --disable-shared && make -j$(nproc) install
+  git clone https://github.com/gypified/libmp3lame && cd libmp3lame && ./configure --enable-static --enable-nasm --disable-shared && make -j$(nproc) install
 
 RUN \
   git clone https://github.com/mstorsjo/fdk-aac/ && \
   cd fdk-aac && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(nproc) install
 
 RUN \
-  wget -O libogg.tar.gz "$OGG_URL" && \
-  echo "$OGG_SHA256  libogg.tar.gz" | sha256sum --status -c - && \
-  tar xf libogg.tar.gz && \
-  cd libogg-* && ./configure --enable-static --disable-shared && make -j$(nproc) install
+  git clone https://github.com/xiph/ogg && cd ogg && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(nproc) install
 
 RUN \
-  wget -O libvorbis.tar.gz "$VORBIS_URL" && \
-  echo "$VORBIS_SHA256  libvorbis.tar.gz" | sha256sum --status -c - && \
-  tar xf libvorbis.tar.gz && \
-  cd libvorbis-* && ./configure --enable-static --disable-shared && make -j$(nproc) install
+  git clone https://github.com/xiph/vorbis && cd vorbis && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(nproc) install
 
 RUN \
-  wget -O opus.tar.gz "$OPUS_URL" && \
-  echo "$OPUS_SHA256  opus.tar.gz" | sha256sum --status -c - && \
-  tar xf opus.tar.gz && \
-  cd opus-* && ./configure --enable-static --disable-shared && make -j$(nproc) install
+  git clone https://github.com/xiph/opus && cd opus && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(nproc) install
 
 RUN \
-  wget -O libtheora.tar.bz2 "$THEORA_URL" && \
-  echo "$THEORA_SHA256  libtheora.tar.bz2" | sha256sum --status -c - && \
-  tar xf libtheora.tar.bz2 && \
-  cd libtheora-* && ./configure --disable-examples --enable-static --disable-shared && make -j$(nproc) install
+  git clone https://github.com/xiph/theora && cd theora && ./autogen.sh && ./configure --disable-examples --enable-static --disable-shared && make -j$(nproc) install
 
 RUN \
   git clone https://github.com/webmproject/libvpx/ && \
@@ -154,6 +120,9 @@ RUN \
 
 # add extra CFLAGS that are not enabled by -O3
 # http://websvn.xvid.org/cvs/viewvc.cgi/trunk/xvidcore/build/generic/configure.in?revision=2146&view=markup
+ARG XVID_VERSION=1.3.7
+ARG XVID_URL="https://downloads.xvid.com/downloads/xvidcore-$XVID_VERSION.tar.gz"
+ARG XVID_SHA256=abbdcbd39555691dd1c9b4d08f0a031376a3b211652c0d8b3b8aa9be1303ce2d
 RUN \
   wget -O libxvid.tar.gz "$XVID_URL" && \
   echo "$XVID_SHA256  libxvid.tar.gz" | sha256sum --status -c - && \
@@ -270,6 +239,7 @@ RUN \
   --enable-pthreads \
   #--enable-hardcoded-tables \
   --enable-runtime-cpudetect \
+  --enable-lto \
   && make -j$(nproc)
 
 USER root
